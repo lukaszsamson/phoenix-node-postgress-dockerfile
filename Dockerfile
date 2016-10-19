@@ -37,7 +37,7 @@ RUN yes | mix archive.install https://github.com/phoenixframework/archives/raw/m
 
 # phoenix requires inotify-tools for filesystem watching on linux
 RUN apt-get -qq update \
-  && apt-get install -yqq inotify-tools postgresql postgresql-contrib \
+  && apt-get install -yqq inotify-tools postgresql postgresql-contrib sudo \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
