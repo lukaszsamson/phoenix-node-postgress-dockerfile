@@ -36,9 +36,19 @@ RUN yes | mix local.hex
 RUN yes | mix archive.install https://github.com/phoenixframework/archives/raw/master/phoenix_new-$PHOENIX_VERSION.ez
 
 # make the "en_US.UTF-8" locale so postgres will be utf-8 enabled by default
-RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/* \
-  && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-ENV LANG en_US.utf8
+# RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/* \
+#  && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+# ENV LANG en_US.utf8
+
+
+RUN apt-get update && apt-get install -y locales && \
+    sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    echo 'LANG="en_US.UTF-8"'>/etc/default/locale && \
+    dpkg-reconfigure --frontend=noninteractive locales && \
+    update-locale LANG=en_US.UTF-8
+
+ENV LANG en_US.UTF-8
+
 
 # phoenix requires inotify-tools for filesystem watching on linux
 RUN apt-get -qq update \
