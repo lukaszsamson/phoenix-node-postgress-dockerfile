@@ -19,7 +19,7 @@ RUN set -ex \
   done
 
 ENV NPM_CONFIG_LOGLEVEL info
-ENV NODE_VERSION 6.9.0
+ENV NODE_VERSION 6.9.1
 
 RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz" \
   && curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/SHASUMS256.txt.asc" \
@@ -58,8 +58,3 @@ RUN apt-get -qq update \
 
 # install yarn npm replacement
 RUN npm i -g yarn
-
-EXPOSE 4000
-
-WORKDIR /app
-VOLUME /app
