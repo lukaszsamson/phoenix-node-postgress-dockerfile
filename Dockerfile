@@ -1,8 +1,11 @@
 FROM elixir:1.3
 MAINTAINER Lukasz Samson <lukaszsamson@gmail.com>
 
-# taken from https://github.com/nodejs/docker-node/blob/4029a8f71920e1e23efa79602167014f9c325ba0/6.7/Dockerfile
+# hex
+RUN yes | mix local.hex
 
+#node
+# taken from https://github.com/nodejs/docker-node/blob/4029a8f71920e1e23efa79602167014f9c325ba0/6.7/Dockerfile
 # gpg keys listed at https://github.com/nodejs/node
 RUN set -ex \
   && for key in \
@@ -29,18 +32,10 @@ RUN curl -SLO "https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-
   && rm "node-v$NODE_VERSION-linux-x64.tar.xz" SHASUMS256.txt.asc SHASUMS256.txt \
   && ln -s /usr/local/bin/node /usr/local/bin/nodejs
 
-ENV PHOENIX_VERSION 1.2.1
+# install yarn npm replacement
+RUN npm i -g yarn
 
-RUN yes | mix local.hex
-
-RUN yes | mix archive.install https://github.com/phoenixframework/archives/raw/master/phoenix_new-$PHOENIX_VERSION.ez
-
-# make the "en_US.UTF-8" locale so postgres will be utf-8 enabled by default
-# RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/* \
-#  && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-# ENV LANG en_US.utf8
-
-
+# postgres
 RUN apt-get update && apt-get install -y locales && \
     sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     echo 'LANG="en_US.UTF-8"'>/etc/default/locale && \
@@ -56,5 +51,12 @@ RUN apt-get -qq update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# install yarn npm replacement
-RUN npm i -g yarn
+
+
+# headless chromium based on https://github.com/mark-adams/docker-chromium-xvfb
+RUN apt-get update && apt-get install -y xvfb chromium \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+ADD xvfb-chromium /usr/bin/xvfb-chromium
+RUN ln -s /usr/bin/xvfb-chromium /usr/bin/google-chrome \
+  && ln -s /usr/bin/xvfb-chromium /usr/bin/chromium-browser
